@@ -2,14 +2,57 @@ function DeleteElement(event) {
 	var Item = event.target.parentElement;
 	Item.remove();
 }
+function SetTime() {
+	milliseconds++;
+	milliseconds = milliseconds < 10 ? '0' + milliseconds : milliseconds;
+
+	if (milliseconds === 100) {
+		seconds++;
+		seconds = seconds < 10 ? '0' + seconds : seconds;
+		milliseconds = '0' + 0;
+	}
+	if (seconds === 60) {
+		minutes++;
+		minutes = minutes < 10 ? '0' + minutes : minutes;
+		seconds = '0' + 0;
+	}
+	if (minutes === 60) {
+		hours++;
+		hours = hours < 10 ? '0' + hours : hours;
+		minutes = '0' + 0;
+	}
+	updateValue();
+}
+function SetLap() {
+	lapMili++;
+	lapMili = lapMili < 10 ? '0' + lapMili : lapMili;
+
+	if (lapMili === 100) {
+		lapSec++;
+		lapSec = lapSec < 10 ? '0' + lapSec : lapSec;
+		lapMili = '0' + 0;
+	}
+	if (lapSec === 60) {
+		lapMin++;
+		lapMin = lapMin < 10 ? '0' + lapMin : lapMin;
+		lapSec = '0' + 0;
+	}
+	if (lapMin === 60) {
+		lapHr++;
+		lapHr = lapHr < 10 ? '0' + lapHr : lapHr;
+		lapMin = '0' + 0;
+	}
+}
 
 //
 //
 //
 
-var hours = (minutes = seconds = milliseconds = '0' + 0),
+var lapHr = (lapMin = lapSec = hours = minutes = seconds = '0' + 0),
+	lapMili = (milliseconds = '0' + 0),
 	startedCountring = false,
-	Timer;
+	Timer,
+	Lap;
 
 updateValue();
 
@@ -22,29 +65,11 @@ startAndStop.addEventListener('click', function (e) {
 	startAndStop.innerText = startedCountring ? 'Stop' : 'Start';
 
 	if (startedCountring) {
-		Timer = setInterval(() => {
-			milliseconds++;
-			milliseconds = milliseconds < 10 ? '0' + milliseconds : milliseconds;
-
-			if (milliseconds === 100) {
-				seconds++;
-				seconds = seconds < 10 ? '0' + seconds : seconds;
-				milliseconds = '0' + 0;
-			}
-			if (seconds === 60) {
-				minutes++;
-				minutes = minutes < 10 ? '0' + minutes : minutes;
-				seconds = '0' + 0;
-			}
-			if (minutes === 60) {
-				hours++;
-				hours = hours < 10 ? '0' + hours : hours;
-				minutes = '0' + 0;
-			}
-			updateValue();
-		}, 10);
+		Timer = setInterval(() => SetTime(), 10);
+		Lap = setInterval(() => SetLap(), 10);
 	} else {
 		clearInterval(Timer);
+		clearInterval(Lap);
 	}
 });
 
@@ -64,7 +89,7 @@ lap.addEventListener('click', function (e) {
 	lapItemHeader.innerText = `Lap ${count}`;
 	lapItemTrashCan.innerText = String.fromCodePoint(128465);
 	lapItemTrashCan.classList.add('lap_items_delete');
-	lapItemInfo.innerText = `${hours}:${minutes}:${seconds}.${milliseconds}`;
+	lapItemInfo.innerText = `${lapHr}:${lapMin}:${lapSec}.${lapMili}`;
 	lapItemInfo.setAttribute('id', 'lap_items_info');
 
 	lapItemTrashCan.addEventListener('click', DeleteElement);
@@ -73,6 +98,9 @@ lap.addEventListener('click', function (e) {
 	lapItem.appendChild(lapItemInfo);
 
 	listLap.appendChild(lapItem);
+
+	lapHr = lapMin = lapSec = '0' + 0;
+	lapMili = '0' + 0;
 });
 reset.addEventListener('click', function (e) {
 	count = 0;
@@ -81,13 +109,14 @@ reset.addEventListener('click', function (e) {
 	startedCountring = !startedCountring;
 	startAndStop.innerText = 'Start';
 	clearInterval(Timer);
-	hours = minutes = seconds = milliseconds = '0' + 0;
+	clearInterval(Lap);
+	(lapHr = lapMin = lapSec = hours = minutes = seconds = '0' + 0),
+		(lapMili = milliseconds = '0' + 0);
 	updateValue();
 });
 
 function updateValue() {
-	document.querySelector('.milliseconds').innerText = milliseconds;
-	document.querySelector('.seconds').innerText = seconds;
-	document.querySelector('.minutes').innerText = minutes;
-	document.querySelector('.hours').innerText = hours;
+	document.querySelector(
+		'.time'
+	).innerText = `${hours}:${minutes}:${seconds}.${milliseconds}`;
 }
