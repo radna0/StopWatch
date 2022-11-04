@@ -1,60 +1,37 @@
+var lapHr = (lapMin = lapSec = hours = minutes = seconds = 0),
+	lapMili = (milliseconds = 0),
+	startedCountring = false,
+	Timer;
+var prevTime,
+	elapsedTime = 0;
+
 function DeleteElement(event) {
 	var Item = event.target.parentElement;
 	Item.remove();
 }
 function SetTime() {
-	milliseconds++;
-	milliseconds = milliseconds < 10 ? '0' + milliseconds : milliseconds;
+	if (!prevTime) {
+		prevTime = Date.now();
+	}
 
-	if (milliseconds === 100) {
-		seconds++;
-		seconds = seconds < 10 ? '0' + seconds : seconds;
-		milliseconds = '0' + 0;
-	}
-	if (seconds === 60) {
-		minutes++;
-		minutes = minutes < 10 ? '0' + minutes : minutes;
-		seconds = '0' + 0;
-	}
-	if (minutes === 60) {
-		hours++;
-		hours = hours < 10 ? '0' + hours : hours;
-		minutes = '0' + 0;
-	}
+	elapsedTime += Date.now() - prevTime;
+	prevTime = Date.now();
+
+	var tempTime = elapsedTime;
+	milliseconds = tempTime % 1000;
+	tempTime = Math.floor(tempTime / 1000);
+	seconds = tempTime % 60;
+	tempTime = Math.floor(tempTime / 60);
+	minutes = tempTime % 60;
+	tempTime = Math.floor(tempTime / 60);
+	hours = tempTime % 60;
+
 	updateValue();
 }
-function SetLap() {
-	lapMili++;
-	lapMili = lapMili < 10 ? '0' + lapMili : lapMili;
-
-	if (lapMili === 100) {
-		lapSec++;
-		lapSec = lapSec < 10 ? '0' + lapSec : lapSec;
-		lapMili = '0' + 0;
-	}
-	if (lapSec === 60) {
-		lapMin++;
-		lapMin = lapMin < 10 ? '0' + lapMin : lapMin;
-		lapSec = '0' + 0;
-	}
-	if (lapMin === 60) {
-		lapHr++;
-		lapHr = lapHr < 10 ? '0' + lapHr : lapHr;
-		lapMin = '0' + 0;
-	}
-}
 
 //
 //
 //
-
-var lapHr = (lapMin = lapSec = hours = minutes = seconds = '0' + 0),
-	lapMili = (milliseconds = '0' + 0),
-	startedCountring = false,
-	Timer,
-	Lap;
-
-updateValue();
 
 var startAndStop = document.querySelector('.start'),
 	lap = document.querySelector('.lap'),
@@ -65,11 +42,10 @@ startAndStop.addEventListener('click', function (e) {
 	startAndStop.innerText = startedCountring ? 'Stop' : 'Start';
 
 	if (startedCountring) {
-		Timer = setInterval(() => SetTime(), 10);
-		Lap = setInterval(() => SetLap(), 10);
+		Timer = setInterval(() => SetTime(), 50);
 	} else {
 		clearInterval(Timer);
-		clearInterval(Lap);
+		prevTime = null;
 	}
 });
 
@@ -77,6 +53,33 @@ var listLap = document.querySelector('.list_lap'),
 	count = 0;
 
 lap.addEventListener('click', function (e) {
+	console.log([lapHr, lapMin, lapSec, lapMili]);
+	lapMili = Number(milliseconds) + 1000 - lapMili;
+	if (lapMili < 1000) {
+		lapSec += 1;
+	} else {
+		lapMili -= 1000;
+	}
+	lapSec = Number(seconds) + 60 - lapSec;
+	if (lapSec < 60) {
+		lapMin += 1;
+	} else {
+		lapSec -= 60;
+	}
+	lapMin = Number(minutes) + 60 - lapMin;
+	if (lapMin < 60) {
+		lapHr += 1;
+	} else {
+		lapMin -= 60;
+	}
+	lapHr = Number(hours) - lapHr;
+
+	lapMili =
+		lapMili < 10 ? '00' + lapMili : lapMili < 100 ? '0' + lapMili : lapMili;
+	lapSec = lapSec < 10 ? '0' + lapSec : lapSec;
+	lapMin = lapMin < 10 ? '0' + lapMin : lapMin;
+	lapHr = lapHr < 10 ? '0' + lapHr : lapHr;
+
 	const uuid = (Math.random() * Math.random()).toString(36).substring(2);
 	count++;
 	var lapItem = document.createElement('li'),
@@ -99,8 +102,10 @@ lap.addEventListener('click', function (e) {
 
 	listLap.appendChild(lapItem);
 
-	lapHr = lapMin = lapSec = '0' + 0;
-	lapMili = '0' + 0;
+	lapMili = Number(milliseconds);
+	lapSec = Number(seconds);
+	lapMin = Number(minutes);
+	lapHr = Number(hours);
 });
 reset.addEventListener('click', function (e) {
 	count = 0;
@@ -109,13 +114,24 @@ reset.addEventListener('click', function (e) {
 	startedCountring = !startedCountring;
 	startAndStop.innerText = 'Start';
 	clearInterval(Timer);
-	clearInterval(Lap);
-	(lapHr = lapMin = lapSec = hours = minutes = seconds = '0' + 0),
-		(lapMili = milliseconds = '0' + 0);
+	elapsedTime = null;
+	prevTime = null;
+	(lapHr = lapMin = lapSec = hours = minutes = seconds = 0),
+		(lapMili = milliseconds = 0);
 	updateValue();
 });
 
 function updateValue() {
+	milliseconds =
+		milliseconds < 10
+			? '00' + milliseconds
+			: milliseconds < 100
+			? '0' + milliseconds
+			: milliseconds;
+	seconds = seconds < 10 ? '0' + seconds : seconds;
+	minutes = minutes < 10 ? '0' + minutes : minutes;
+	hours = hours < 10 ? '0' + hours : hours;
+
 	document.querySelector(
 		'.time'
 	).innerText = `${hours}:${minutes}:${seconds}.${milliseconds}`;
