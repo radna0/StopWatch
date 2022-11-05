@@ -53,25 +53,12 @@ var listLap = document.querySelector('.list_lap'),
 	count = 0;
 
 lap.addEventListener('click', function (e) {
-	console.log([lapHr, lapMin, lapSec, lapMili]);
 	lapMili = Number(milliseconds) + 1000 - lapMili;
-	if (lapMili < 1000) {
-		lapSec += 1;
-	} else {
-		lapMili -= 1000;
-	}
+	lapMili < 1000 ? (lapSec += 1) : (lapMili -= 1000);
 	lapSec = Number(seconds) + 60 - lapSec;
-	if (lapSec < 60) {
-		lapMin += 1;
-	} else {
-		lapSec -= 60;
-	}
+	lapSec < 60 ? (lapMin += 1) : (lapSec -= 60);
 	lapMin = Number(minutes) + 60 - lapMin;
-	if (lapMin < 60) {
-		lapHr += 1;
-	} else {
-		lapMin -= 60;
-	}
+	lapMin < 60 ? (lapHr += 1) : (lapMin -= 60);
 	lapHr = Number(hours) - lapHr;
 
 	lapMili =
