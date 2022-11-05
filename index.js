@@ -5,10 +5,13 @@ var lapHr = (lapMin = lapSec = hours = minutes = seconds = 0),
 var prevTime,
 	elapsedTime = 0;
 
+// Delete Laps
 function DeleteElement(event) {
 	var Item = event.target.parentElement;
 	Item.remove();
 }
+
+// Start counting
 function SetTime() {
 	if (!prevTime) {
 		prevTime = Date.now();
@@ -29,6 +32,23 @@ function SetTime() {
 	updateValue();
 }
 
+// Update values for displaying timer
+function updateValue() {
+	milliseconds =
+		milliseconds < 10
+			? '00' + milliseconds
+			: milliseconds < 100
+			? '0' + milliseconds
+			: milliseconds;
+	seconds = seconds < 10 ? '0' + seconds : seconds;
+	minutes = minutes < 10 ? '0' + minutes : minutes;
+	hours = hours < 10 ? '0' + hours : hours;
+
+	document.querySelector(
+		'.time'
+	).innerText = `${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
+
 //
 //
 //
@@ -37,6 +57,7 @@ var startAndStop = document.querySelector('.start'),
 	lap = document.querySelector('.lap'),
 	reset = document.querySelector('.reset');
 
+// Start and Stop button
 startAndStop.addEventListener('click', function (e) {
 	startedCountring = !startedCountring;
 	startAndStop.innerText = startedCountring ? 'Stop' : 'Start';
@@ -52,13 +73,18 @@ startAndStop.addEventListener('click', function (e) {
 var listLap = document.querySelector('.list_lap'),
 	count = 0;
 
+// Lap button
 lap.addEventListener('click', function (e) {
+	// Miliseconds Lap
 	lapMili = Number(milliseconds) + 1000 - lapMili;
 	lapMili < 1000 ? (lapSec += 1) : (lapMili -= 1000);
+	// Seconds Lap
 	lapSec = Number(seconds) + 60 - lapSec;
 	lapSec < 60 ? (lapMin += 1) : (lapSec -= 60);
+	// Minutes Lap
 	lapMin = Number(minutes) + 60 - lapMin;
 	lapMin < 60 ? (lapHr += 1) : (lapMin -= 60);
+	// Hours Lap
 	lapHr = Number(hours) - lapHr;
 
 	lapMili =
@@ -67,6 +93,7 @@ lap.addEventListener('click', function (e) {
 	lapMin = lapMin < 10 ? '0' + lapMin : lapMin;
 	lapHr = lapHr < 10 ? '0' + lapHr : lapHr;
 
+	// Creating Lap times
 	const uuid = (Math.random() * Math.random()).toString(36).substring(2);
 	count++;
 	var lapItem = document.createElement('li'),
@@ -107,19 +134,3 @@ reset.addEventListener('click', function (e) {
 		(lapMili = milliseconds = 0);
 	updateValue();
 });
-
-function updateValue() {
-	milliseconds =
-		milliseconds < 10
-			? '00' + milliseconds
-			: milliseconds < 100
-			? '0' + milliseconds
-			: milliseconds;
-	seconds = seconds < 10 ? '0' + seconds : seconds;
-	minutes = minutes < 10 ? '0' + minutes : minutes;
-	hours = hours < 10 ? '0' + hours : hours;
-
-	document.querySelector(
-		'.time'
-	).innerText = `${hours}:${minutes}:${seconds}.${milliseconds}`;
-}
